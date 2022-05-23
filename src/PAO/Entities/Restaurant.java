@@ -4,7 +4,7 @@ import PAO.Entities.Customers.Customer;
 import PAO.Entities.Employees.Employee;
 import PAO.Entities.Orders.Order;
 import PAO.Entities.Products.Product;
-import PAO.Entities.Address;
+import PAO.Entities.Addresses.Address;
 
 import java.util.*;
 

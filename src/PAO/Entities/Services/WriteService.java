@@ -1,14 +1,19 @@
 package PAO.Entities.Services;
 
-import PAO.Entities.Address;
+import PAO.Entities.Addresses.Address;
+import PAO.Entities.Addresses.AddressRepository;
 import PAO.Entities.Customers.Customer;
+import PAO.Entities.Customers.CustomerRepository;
 import PAO.Entities.Employees.Deliverer;
 import PAO.Entities.Employees.Employee;
+import PAO.Entities.Employees.EmployeeRepository;
 import PAO.Entities.Employees.Waiter;
 import PAO.Entities.Orders.OnlineOrder;
 import PAO.Entities.Orders.Order;
+import PAO.Entities.Orders.OrderRepository;
 import PAO.Entities.Orders.PhysicalOrder;
 import PAO.Entities.Products.Product;
+import PAO.Entities.Products.ProductRepository;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -214,7 +219,43 @@ public class WriteService{
         } catch (IOException e) {
             System.out.println(e.toString());
         }
+    }
 
+    public < T > void addJDBC( T entity){
+        String fileName = null;
+        if(entity instanceof Employee)
+        {
+            EmployeeRepository employeeRepo = EmployeeRepository.getInstance();
+            employeeRepo.addEmployee( (Employee) entity);
+            employees.add( (Employee) entity );
+        }
+        else if(entity instanceof Address)
+        {
+            AddressRepository addressRepo = AddressRepository.getInstance();
+            addressRepo.addAddress((Address) entity);
+            Address address = (Address) entity;
+            addresses.put( address.getAddressId(), address );
+        }
+        else if(entity instanceof  Customer)
+        {
+            CustomerRepository customerRepo = CustomerRepository.getInstance();
+            customerRepo.addCustomer((Customer) entity);
+            Customer customer = (Customer) entity;
+            customers.put( customer.getCustomerId(), customer );
+        }
+        else if(entity instanceof  Product)
+        {
+            ProductRepository productRepo = ProductRepository.getInstance();
+            productRepo.addProduct((Product) entity);
+            Product product = (Product) entity;
+            products.put( product.getProductId(), product );
+        }
+        else if(entity instanceof Order)
+        {
+            OrderRepository orderRepo =  OrderRepository.getInstance();
+            orderRepo.addOrder( (Order) entity );
+            orders.add( (Order) entity );
+        }
     }
 
     @Override

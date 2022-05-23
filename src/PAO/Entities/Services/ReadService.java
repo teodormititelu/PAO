@@ -1,14 +1,16 @@
 package PAO.Entities.Services;
 
-import PAO.Entities.Address;
+import PAO.Entities.Addresses.Address;
+import PAO.Entities.Addresses.AddressRepository;
 import PAO.Entities.Customers.Customer;
+import PAO.Entities.Customers.CustomerRepository;
 import PAO.Entities.Employees.Deliverer;
 import PAO.Entities.Employees.Employee;
+import PAO.Entities.Employees.EmployeeRepository;
 import PAO.Entities.Employees.Waiter;
-import PAO.Entities.Orders.OnlineOrder;
-import PAO.Entities.Orders.Order;
-import PAO.Entities.Orders.PhysicalOrder;
+import PAO.Entities.Orders.*;
 import PAO.Entities.Products.Product;
+import PAO.Entities.Products.ProductRepository;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -116,6 +118,23 @@ public class ReadService{
         }
     }
 
+    public void parseAddressesJDBC(){
+        /// st, city, country, postalCode
+        AddressRepository addressRepo = AddressRepository.getInstance();
+        var readData = addressRepo.getAddresss();
+        for (var objectData : readData) {
+            if( objectData != null) {
+                Address address = new Address(
+                        objectData[0],
+                        objectData[1],
+                        objectData[2],
+                        objectData[3]
+                );
+                addresses.put( address.getAddressId(), address);
+            }
+        }
+    }
+
     public void parseCustomers( Map < Integer, Address > addresses ){
         // fname, lname, date, phone, password, addressId
         var readData = ReadService.getCSVStrings("Data/Customers.csv");
@@ -142,8 +161,65 @@ public class ReadService{
         }
     }
 
+    public void parseCustomersJDBC( Map < Integer, Address > addresses ){
+        // fname, lname, date, phone, password, addressId
+        CustomerRepository customerRepo = CustomerRepository.getInstance();
+        var readData = customerRepo.getCustomers();
+        try{
+            for (var objectData : readData) {
+                if(objectData != null) {
+                    int addressId = Integer.parseInt( objectData[5] );
+                    Address address = addresses.get( addressId );
+
+                    Customer customer = new Customer( objectData[0]
+                            ,objectData[1]
+                            ,LocalDate.parse( objectData[2] )
+                            ,objectData[3]
+                            ,objectData[4]
+                            ,address);
+
+                    customers.put( customer.getCustomerId(), customer );
+                }
+            }
+        }catch( DateTimeParseException e ){
+            System.out.println( e.toString() );
+        }catch( NumberFormatException e ){
+            System.out.println( e.toString() );
+        }
+    }
+
     public void parseEmployees(){
         var readData = ReadService.getCSVStrings("Data/Employees.csv");
+
+        try{
+            for (var objectData : readData) {
+                if( objectData != null) {
+                    String employeeType = objectData[3];
+                    Employee employee;
+
+                    if( employeeType.equals("Deliverer") )
+                        employee = new Deliverer(
+                                objectData[0],
+                                objectData[1],
+                                LocalDate.parse( objectData[2] )
+                        );
+                    else employee = new Waiter(
+                            objectData[0],
+                            objectData[1],
+                            LocalDate.parse( objectData[2] )
+                    );
+
+                    employees.add( employee );
+                }
+            }
+        }catch( DateTimeParseException e ){
+            System.out.println( e.toString() );
+        }
+    }
+
+    public void parseEmployeesJDBC(){
+        EmployeeRepository employeeRepo = EmployeeRepository.getInstance();
+        var readData = employeeRepo.getEmployees();
 
         try{
             for (var objectData : readData) {
@@ -192,9 +268,67 @@ public class ReadService{
         }
     }
 
+    public void parseProductsJDBC (){
+        /// name, price, restricted
+        ProductRepository productRepo = ProductRepository.getInstance();
+        var readData = productRepo.getProducts();
+
+        try{
+            for (var objectData : readData) {
+                if( objectData != null) {
+                    Product product = new Product(
+                            objectData[0],
+                            Integer.parseInt( objectData[1] ),
+                            Boolean.parseBoolean( objectData[2] )
+                    );
+                    products.put( product.getProductId(), product);
+                }
+            }
+        }catch( NumberFormatException e ){
+            System.out.println( e.toString() );
+        }
+    }
+
     public void parseOrders( Map < Integer, Customer > customers, Map < Integer, Product > products ){
         // customerId, ordertype, date, product list
         var readData = ReadService.getCSVStrings("Data/Orders.csv");
+        try {
+            for (var objectData : readData) {
+                if( objectData != null) {
+                    Map < Product, Integer > productList = new HashMap<>();
+                    String orderType = objectData[2];
+                    Order order;
+
+                    for( int i = 3; i < objectData.length; i += 2 ){
+                        productList.put( products.get( Integer.parseInt(objectData[i]) ), Integer.parseInt(objectData[i+1] ) );
+                    }
+
+                    if( orderType == "Delivery" )
+                        order = new OnlineOrder(
+                                productList,
+                                customers.get( Integer.parseInt( objectData[0] ) ),
+                                LocalDate.parse( objectData[1] )
+                        );
+                    else order = new PhysicalOrder(
+                            productList,
+                            customers.get( Integer.parseInt( objectData[0] ) ),
+                            LocalDate.parse( objectData[1] )
+                    );
+
+                    orders.add( order );
+                }
+            }
+        }catch( DateTimeParseException e ){
+            System.out.println( e.toString() );
+        } catch (NumberFormatException  e){
+            System.out.println(e.toString());
+        }
+    }
+
+    public void parseOrdersJDBC( Map < Integer, Customer > customers, Map < Integer, Product > products ){
+        // customerId, ordertype, date, product list
+        OrderRepository orderRepo = OrderRepository.getInstance();
+        var readData = orderRepo.getOrders();
         try {
             for (var objectData : readData) {
                 if( objectData != null) {
