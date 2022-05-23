@@ -17,6 +17,8 @@ public class Audit {
 
     private List<String> actionHistory = new ArrayList<>();
 
+    private Audit () {}
+
     public static Audit getInstance(){
         if (singletonInstance == null)
             singletonInstance = new Audit();
