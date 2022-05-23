@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import PAO.Entities.Orders.*;
 import PAO.Entities.Products.Product;
-import PAO.Entities.Address;
+import PAO.Entities.Addresses.Address;
 
 public class Customer {
 

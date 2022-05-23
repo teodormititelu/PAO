@@ -4,7 +4,7 @@ import PAO.Entities.Customers.Customer;
 import PAO.Entities.Employees.*;
 import PAO.Entities.Orders.*;
 import PAO.Entities.Products.Product;
-import PAO.Entities.Address;
+import PAO.Entities.Addresses.Address;
 import PAO.Entities.Restaurant;
 
 import java.time.LocalDate;
