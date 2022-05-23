@@ -168,14 +168,14 @@ public class ReadService{
         try{
             for (var objectData : readData) {
                 if(objectData != null) {
-                    int addressId = Integer.parseInt( objectData[5] );
+                    int addressId = Integer.parseInt( objectData[6] );
                     Address address = addresses.get( addressId );
 
-                    Customer customer = new Customer( objectData[0]
-                            ,objectData[1]
-                            ,LocalDate.parse( objectData[2] )
-                            ,objectData[3]
+                    Customer customer = new Customer( objectData[1]
+                            ,objectData[2]
+                            ,LocalDate.parse( objectData[3] )
                             ,objectData[4]
+                            ,objectData[5]
                             ,address);
 
                     customers.put( customer.getCustomerId(), customer );
@@ -224,19 +224,19 @@ public class ReadService{
         try{
             for (var objectData : readData) {
                 if( objectData != null) {
-                    String employeeType = objectData[3];
+                    String employeeType = objectData[4];
                     Employee employee;
 
                     if( employeeType == "Deliverer")
                         employee = new Deliverer(
-                                objectData[0],
                                 objectData[1],
-                                LocalDate.parse( objectData[2] )
+                                objectData[2],
+                                LocalDate.parse( objectData[3] )
                         );
                     else employee = new Waiter(
-                            objectData[0],
                             objectData[1],
-                            LocalDate.parse( objectData[2] )
+                            objectData[2],
+                            LocalDate.parse( objectData[3] )
                     );
 
                     employees.add( employee );
@@ -277,9 +277,9 @@ public class ReadService{
             for (var objectData : readData) {
                 if( objectData != null) {
                     Product product = new Product(
-                            objectData[0],
-                            Integer.parseInt( objectData[1] ),
-                            Boolean.parseBoolean( objectData[2] )
+                            objectData[1],
+                            Integer.parseInt( objectData[2] ),
+                            Boolean.parseBoolean( objectData[3] )
                     );
                     products.put( product.getProductId(), product);
                 }
@@ -332,24 +332,23 @@ public class ReadService{
         try {
             for (var objectData : readData) {
                 if( objectData != null) {
-                    Map < Product, Integer > productList = new HashMap<>();
                     String orderType = objectData[2];
                     Order order;
 
-                    for( int i = 3; i < objectData.length; i += 2 ){
-                        productList.put( products.get( Integer.parseInt(objectData[i]) ), Integer.parseInt(objectData[i+1] ) );
-                    }
+                    OrderToProductsRepository otpRepo = OrderToProductsRepository.getInstance();
 
-                    if( orderType == "Delivery" )
+                    var productList = otpRepo.getOrderProductList( Integer.parseInt(objectData[0]) );
+
+                    if( orderType.equals("Delivery") )
                         order = new OnlineOrder(
                                 productList,
-                                customers.get( Integer.parseInt( objectData[0] ) ),
-                                LocalDate.parse( objectData[1] )
+                                customers.get( Integer.parseInt( objectData[1] ) ),
+                                LocalDate.parse( objectData[3] )
                         );
                     else order = new PhysicalOrder(
                             productList,
-                            customers.get( Integer.parseInt( objectData[0] ) ),
-                            LocalDate.parse( objectData[1] )
+                            customers.get( Integer.parseInt( objectData[1] ) ),
+                            LocalDate.parse( objectData[3] )
                     );
 
                     orders.add( order );
